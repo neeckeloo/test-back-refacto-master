@@ -20,7 +20,9 @@ $currentSite = new Site($faker->randomNumber(), $faker->url);
 $currentUser = new User($faker->randomNumber(), $faker->firstName, $faker->lastName, $faker->email);
 
 $applicationContext = new ApplicationContext($currentSite, $currentUser);
-$destinationRepository = new DestinationRepository();
+
+$quote = new Quote($faker->randomNumber(), $faker->randomNumber(), $faker->randomNumber(), $faker->date());
+$destination = new Destination($faker->randomNumber(), $faker->country, 'en', $faker->slug());
 
 $template = new Template(
     1,
@@ -34,13 +36,11 @@ Bien cordialement,
 
 L'équipe Convelio.com
 ");
-$templateManager = new TemplateManager($applicationContext, $destinationRepository);
+$templateManager = new TemplateManager($applicationContext);
 
-$message = $templateManager->getTemplateComputed(
-    $template,
-    [
-        'quote' => new Quote($faker->randomNumber(), $faker->randomNumber(), $faker->randomNumber(), $faker->date())
-    ]
-);
+$message = $templateManager->getTemplateComputed($template, [
+    'quote' => $quote,
+    'destination' => $destination,
+]);
 
 echo $message->subject . "\n" . $message->content;

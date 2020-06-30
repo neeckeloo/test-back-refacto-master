@@ -4,14 +4,9 @@ class TemplateManager
 {
     private $applicationContext;
 
-    private $destinationRepository;
-
-    public function __construct(
-        ApplicationContext $applicationContext,
-        DestinationRepository $destinationRepository
-    ) {
+    public function __construct(ApplicationContext $applicationContext)
+    {
         $this->applicationContext = $applicationContext;
-        $this->destinationRepository = $destinationRepository;
     }
 
     public function getTemplateComputed(Template $tpl, array $data)
@@ -29,8 +24,9 @@ class TemplateManager
 
     private function computeText($text, array $data)
     {
-        $quote = (isset($data['quote']) && $data['quote'] instanceof Quote) ? $data['quote'] : null;
         $user = (isset($data['user']) && ($data['user'] instanceof User)) ? $data['user'] : $this->applicationContext->getCurrentUser();
+        $quote = (isset($data['quote']) && $data['quote'] instanceof Quote) ? $data['quote'] : null;
+        $destination = (isset($data['destination']) && $data['destination'] instanceof Destination) ? $data['destination'] : null;
 
         if ($quote !== null) {
             if ($this->hasTag('quote:summary_html', $text)) {
@@ -48,9 +44,7 @@ class TemplateManager
                 );
             }
 
-            if ($this->hasTag('quote:destination_name', $text) || $this->hasTag('quote:destination_link', $text)) {
-                $destination = $this->destinationRepository->getById($quote->destinationId);
-
+            if ($destination) {
                 $text = $this->replaceTag('quote:destination_name', $destination->countryName, $text);
                 $text = $this->replaceTag(
                     'quote:destination_link',

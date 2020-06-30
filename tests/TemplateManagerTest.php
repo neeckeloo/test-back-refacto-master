@@ -56,14 +56,12 @@ Bien cordialement,
 L'équipe Convelio.com
 ");
 
-        $templateManager = new TemplateManager($applicationContext, $destinationRepository);
+        $templateManager = new TemplateManager($applicationContext);
 
-        $message = $templateManager->getTemplateComputed(
-            $template,
-            [
-                'quote' => $this->createQuote($destinationId),
-            ]
-        );
+        $message = $templateManager->getTemplateComputed($template, [
+            'quote' => $this->createQuote($destinationId),
+            'destination' => $expectedDestination,
+        ]);
 
         $this->assertEquals('Votre livraison à ' . $expectedDestination->countryName, $message->subject);
         $this->assertEquals("
