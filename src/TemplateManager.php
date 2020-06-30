@@ -25,31 +25,73 @@ class TemplateManager
         $destination = (isset($data['destination']) && $data['destination'] instanceof Destination) ? $data['destination'] : null;
 
         if ($quote !== null) {
-            if ($this->hasTag('quote:summary_html', $text)) {
-                $text = $this->replaceTag(
-                    'quote:summary_html',
-                    $this->renderQuoteAsHtml($quote),
-                    $text
-                );
-            }
-            if ($this->hasTag('quote:summary', $text)) {
-                $text = $this->replaceTag(
-                    'quote:summary',
-                    $this->renderQuoteAsText($quote),
-                    $text
-                );
-            }
-
-            if ($destination) {
-                $text = $this->replaceTag('quote:destination_name', $destination->countryName, $text);
-                $text = $this->replaceTag(
-                    'quote:destination_link',
-                    $this->createQuoteDestinationLink($quote, $destination),
-                    $text
-                );
-            }
+            $text = $this->replaceQuoteTags($text, $quote, $destination);
         }
 
+        $text = $this->replaceUserTags($text, $user);
+
+        return $text;
+    }
+
+    /**
+     * @param string $text
+     * @param Quote $quote
+     * @param Destination|null $destination
+     * @return string
+     */
+    private function replaceQuoteTags($text, Quote $quote, Destination $destination = null)
+    {
+        if ($this->hasTag('quote:summary_html', $text)) {
+            $text = $this->replaceTag(
+                'quote:summary_html',
+                $this->renderQuoteAsHtml($quote),
+                $text
+            );
+        }
+        if ($this->hasTag('quote:summary', $text)) {
+            $text = $this->replaceTag(
+                'quote:summary',
+                $this->renderQuoteAsText($quote),
+                $text
+            );
+        }
+
+        if ($destination !== null) {
+            $text = $this->replaceQuoteDestinationTags($text, $quote, $destination);
+        }
+
+        return $text;
+    }
+
+    /**
+     * @param string $text
+     * @param Quote $quote
+     * @param Destination $destination
+     * @return string
+     */
+    private function replaceQuoteDestinationTags($text, Quote $quote, Destination $destination)
+    {
+        if ($this->hasTag('quote:destination_name', $text)) {
+            $text = $this->replaceTag('quote:destination_name', $destination->countryName, $text);
+        }
+        if ($this->hasTag('quote:destination_link', $text)) {
+            $text = $this->replaceTag(
+                'quote:destination_link',
+                $this->createQuoteDestinationLink($quote, $destination),
+                $text
+            );
+        }
+
+        return $text;
+    }
+
+    /**
+     * @param string $text
+     * @param User $user
+     * @return string
+     */
+    private function replaceUserTags($text, User $user)
+    {
         if ($this->hasTag('user:first_name', $text)) {
             $text = $this->replaceTag('user:first_name', ucfirst(mb_strtolower($user->firstname)), $text);
         }
