@@ -37,7 +37,7 @@ class TemplateManager
 
         if ($quote)
         {
-            $usefulObject = $this->siteRepository->getById($quote->siteId);
+            $site = $this->siteRepository->getById($quote->siteId);
             $destinationOfQuote = $this->destinationRepository->getById($quote->destinationId);
 
             if(strpos($text, '[quote:destination_link]') !== false){
@@ -68,7 +68,7 @@ class TemplateManager
         }
 
         if (isset($destination))
-            $text = str_replace('[quote:destination_link]', $usefulObject->url . '/' . $destination->countryName . '/quote/' . $quote->id, $text);
+            $text = str_replace('[quote:destination_link]', $site->url . '/' . $destination->countryName . '/quote/' . $quote->id, $text);
         else
             $text = str_replace('[quote:destination_link]', '', $text);
 
