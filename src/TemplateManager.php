@@ -37,49 +37,65 @@ class TemplateManager
         if ($quote) {
             $destinationOfQuote = $this->destinationRepository->getById($quote->destinationId);
 
-            if (strpos($text, '[quote:destination_link]') !== false) {
+            if ($this->hasTag('quote:destination_link', $text)) {
                 $destination = $this->destinationRepository->getById($quote->destinationId);
             }
 
-            $containsSummaryHtml = strpos($text, '[quote:summary_html]');
-            $containsSummary = strpos($text, '[quote:summary]');
-
-            if ($containsSummaryHtml !== false || $containsSummary !== false) {
-                if ($containsSummaryHtml !== false) {
-                    $text = str_replace(
-                        '[quote:summary_html]',
-                        Quote::renderHtml($quote),
-                        $text
-                    );
-                }
-                if ($containsSummary !== false) {
-                    $text = str_replace(
-                        '[quote:summary]',
-                        Quote::renderText($quote),
-                        $text
-                    );
-                }
+            if ($this->hasTag('quote:summary_html', $text)) {
+                $text = $this->replaceTag(
+                    'quote:summary_html',
+                    Quote::renderHtml($quote),
+                    $text
+                );
+            }
+            if ($this->hasTag('quote:summary', $text)) {
+                $text = $this->replaceTag(
+                    'quote:summary',
+                    Quote::renderText($quote),
+                    $text
+                );
             }
 
-            if (strpos($text, '[quote:destination_name]') !== false) {
-                $text = str_replace('[quote:destination_name]', $destinationOfQuote->countryName, $text);
+            if ($this->hasTag('quote:destination_name', $text)) {
+                $text = $this->replaceTag('quote:destination_name', $destinationOfQuote->countryName, $text);
             }
 
             if (isset($destination)) {
-                $text = str_replace(
-                    '[quote:destination_link]',
+                $text = $this->replaceTag(
+                    'quote:destination_link',
                     $site->url . '/' . $destination->countryName . '/quote/' . $quote->id,
                     $text
                 );
             } else {
-                $text = str_replace('[quote:destination_link]', '', $text);
+                $text = $this->replaceTag('quote:destination_link', '', $text);
             }
         }
 
-        if (strpos($text, '[user:first_name]') !== false) {
-            $text = str_replace('[user:first_name]', ucfirst(mb_strtolower($user->firstname)), $text);
+        if ($this->hasTag('user:first_name', $text)) {
+            $text = $this->replaceTag('user:first_name', ucfirst(mb_strtolower($user->firstname)), $text);
         }
 
         return $text;
+    }
+
+    /**
+     * @param string $name
+     * @param string $text
+     * @return bool
+     */
+    private function hasTag($name, $text)
+    {
+        return strpos($text, sprintf('[%s]', $name)) !== false;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @param string $text
+     * @return string
+     */
+    private function replaceTag($name, $value, $text)
+    {
+        return str_replace(sprintf('[%s]', $name), $value, $text);
     }
 }
