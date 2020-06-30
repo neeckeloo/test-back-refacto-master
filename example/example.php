@@ -7,7 +7,6 @@ require_once __DIR__ . '/../src/Entity/Quote.php';
 require_once __DIR__ . '/../src/Entity/Site.php';
 require_once __DIR__ . '/../src/Entity/Template.php';
 require_once __DIR__ . '/../src/Entity/User.php';
-require_once __DIR__ . '/../src/Helper/SingletonTrait.php';
 require_once __DIR__ . '/../src/Context/ApplicationContext.php';
 require_once __DIR__ . '/../src/Repository/Repository.php';
 require_once __DIR__ . '/../src/Repository/DestinationRepository.php';
@@ -17,10 +16,13 @@ require_once __DIR__ . '/../src/TemplateManager.php';
 
 $faker = \Faker\Factory::create();
 
-$applicationContext = ApplicationContext::getInstance();
-$quoteRepository = QuoteRepository::getInstance();
-$siteRepository = SiteRepository::getInstance();
-$destinationRepository = DestinationRepository::getInstance();
+$currentSite = new Site($faker->randomNumber(), $faker->url);
+$currentUser = new User($faker->randomNumber(), $faker->firstName, $faker->lastName, $faker->email);
+
+$applicationContext = new ApplicationContext($currentSite, $currentUser);
+$quoteRepository = new QuoteRepository();
+$siteRepository = new SiteRepository();
+$destinationRepository = new DestinationRepository();
 
 $template = new Template(
     1,

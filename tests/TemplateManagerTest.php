@@ -5,7 +5,6 @@ require_once __DIR__ . '/../src/Entity/Quote.php';
 require_once __DIR__ . '/../src/Entity/Site.php';
 require_once __DIR__ . '/../src/Entity/Template.php';
 require_once __DIR__ . '/../src/Entity/User.php';
-require_once __DIR__ . '/../src/Helper/SingletonTrait.php';
 require_once __DIR__ . '/../src/Context/ApplicationContext.php';
 require_once __DIR__ . '/../src/Repository/Repository.php';
 require_once __DIR__ . '/../src/Repository/DestinationRepository.php';
@@ -15,11 +14,14 @@ require_once __DIR__ . '/../src/TemplateManager.php';
 
 class TemplateManagerTest extends PHPUnit_Framework_TestCase
 {
+    private $faker;
+
     /**
      * Init the mocks
      */
     public function setUp()
     {
+        $this->faker = \Faker\Factory::create();
     }
 
     /**
@@ -34,18 +36,16 @@ class TemplateManagerTest extends PHPUnit_Framework_TestCase
      */
     public function test()
     {
-        $faker = \Faker\Factory::create();
+        $applicationContext = $this->createApplicationContext();
+        $quoteRepository = new QuoteRepository();
+        $siteRepository = new SiteRepository();
+        $destinationRepository = new DestinationRepository();
 
-        $applicationContext = ApplicationContext::getInstance();
-        $quoteRepository = QuoteRepository::getInstance();
-        $siteRepository = SiteRepository::getInstance();
-        $destinationRepository = DestinationRepository::getInstance();
-
-        $destinationId = $faker->randomNumber();
+        $destinationId = $this->faker->randomNumber();
         $expectedDestination = $destinationRepository->getById($destinationId);
         $expectedUser = $applicationContext->getCurrentUser();
 
-        $quote = new Quote($faker->randomNumber(), $faker->randomNumber(), $destinationId, $faker->date());
+        $quote = new Quote($this->faker->randomNumber(), $this->faker->randomNumber(), $destinationId, $this->faker->date());
 
         $template = new Template(
             1,
@@ -79,5 +79,13 @@ Bien cordialement,
 
 L'équipe Convelio.com
 ", $message->content);
+    }
+
+    private function createApplicationContext()
+    {
+        $currentSite = new Site($this->faker->randomNumber(), $this->faker->url);
+        $currentUser = new User($this->faker->randomNumber(), $this->faker->firstName, $this->faker->lastName, $this->faker->email);
+
+        return new ApplicationContext($currentSite, $currentUser);
     }
 }

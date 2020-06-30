@@ -2,8 +2,6 @@
 
 class QuoteRepository implements Repository
 {
-    use SingletonTrait;
-
     /**
      * @param int $id
      *

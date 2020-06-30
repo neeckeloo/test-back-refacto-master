@@ -2,22 +2,20 @@
 
 class ApplicationContext
 {
-    use SingletonTrait;
-
     /**
      * @var Site
      */
     private $currentSite;
+
     /**
      * @var User
      */
     private $currentUser;
 
-    protected function __construct()
+    public function __construct(Site $currentSite, User $currentUser)
     {
-        $faker = \Faker\Factory::create();
-        $this->currentSite = new Site($faker->randomNumber(), $faker->url);
-        $this->currentUser = new User($faker->randomNumber(), $faker->firstName, $faker->lastName, $faker->email);
+        $this->currentSite = $currentSite;
+        $this->currentUser = $currentUser;
     }
 
     public function getCurrentSite()
