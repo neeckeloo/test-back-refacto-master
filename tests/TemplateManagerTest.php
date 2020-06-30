@@ -37,10 +37,9 @@ class TemplateManagerTest extends PHPUnit_Framework_TestCase
     public function test()
     {
         $applicationContext = $this->createApplicationContext();
-        $destinationRepository = new DestinationRepository();
 
         $destinationId = $this->faker->randomNumber();
-        $expectedDestination = $destinationRepository->getById($destinationId);
+        $expectedDestination = $this->createDestination($destinationId);
         $expectedUser = $applicationContext->getCurrentUser();
 
         $template = new Template(
@@ -63,8 +62,8 @@ L'équipe Convelio.com
             'destination' => $expectedDestination,
         ]);
 
-        $this->assertEquals('Votre livraison à ' . $expectedDestination->countryName, $message->subject);
-        $this->assertEquals("
+        $expectedSubject = 'Votre livraison à ' . $expectedDestination->countryName;
+        $expectedContent = "
 Bonjour " . $expectedUser->firstname . ",
 
 Merci de nous avoir contacté pour votre livraison à " . $expectedDestination->countryName . ".
@@ -72,7 +71,10 @@ Merci de nous avoir contacté pour votre livraison à " . $expectedDestination->
 Bien cordialement,
 
 L'équipe Convelio.com
-", $message->content);
+";
+
+        $this->assertEquals($expectedSubject, $message->subject);
+        $this->assertEquals($expectedContent, $message->content);
     }
 
     private function createApplicationContext()
@@ -90,5 +92,14 @@ L'équipe Convelio.com
     private function createQuote($destinationId)
     {
         return new Quote($this->faker->randomNumber(), $this->faker->randomNumber(), $destinationId, $this->faker->date());
+    }
+
+    /**
+     * @param int $destinationId
+     * @return Destination
+     */
+    private function createDestination($destinationId)
+    {
+        return new Destination($destinationId, $this->faker->country, 'en', $this->faker->slug());
     }
 }
