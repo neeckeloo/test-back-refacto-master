@@ -29,18 +29,10 @@ class TemplateManager
 
     private function computeText($text, array $data)
     {
-        $site = $this->applicationContext->getCurrentSite();
+        $quote = (isset($data['quote']) && $data['quote'] instanceof Quote) ? $data['quote'] : null;
+        $user = (isset($data['user']) && ($data['user'] instanceof User)) ? $data['user'] : $this->applicationContext->getCurrentUser();
 
-        $quote = (isset($data['quote']) and $data['quote'] instanceof Quote) ? $data['quote'] : null;
-        $user = (isset($data['user']) and ($data['user'] instanceof User)) ? $data['user'] : $this->applicationContext->getCurrentUser();
-
-        if ($quote) {
-            $destinationOfQuote = $this->destinationRepository->getById($quote->destinationId);
-
-            if ($this->hasTag('quote:destination_link', $text)) {
-                $destination = $this->destinationRepository->getById($quote->destinationId);
-            }
-
+        if ($quote !== null) {
             if ($this->hasTag('quote:summary_html', $text)) {
                 $text = $this->replaceTag(
                     'quote:summary_html',
@@ -56,18 +48,15 @@ class TemplateManager
                 );
             }
 
-            if ($this->hasTag('quote:destination_name', $text)) {
-                $text = $this->replaceTag('quote:destination_name', $destinationOfQuote->countryName, $text);
-            }
+            if ($this->hasTag('quote:destination_name', $text) || $this->hasTag('quote:destination_link', $text)) {
+                $destination = $this->destinationRepository->getById($quote->destinationId);
 
-            if (isset($destination)) {
+                $text = $this->replaceTag('quote:destination_name', $destination->countryName, $text);
                 $text = $this->replaceTag(
                     'quote:destination_link',
-                    $site->url . '/' . $destination->countryName . '/quote/' . $quote->id,
+                    $this->createQuoteDestinationLink($quote, $destination),
                     $text
                 );
-            } else {
-                $text = $this->replaceTag('quote:destination_link', '', $text);
             }
         }
 
@@ -107,5 +96,17 @@ class TemplateManager
     private function renderQuoteAsText(Quote $quote)
     {
         return (string) $quote->id;
+    }
+
+    /**
+     * @param Quote $quote
+     * @param Destination $destination
+     * @return string
+     */
+    private function createQuoteDestinationLink(Quote $quote, Destination $destination)
+    {
+        $site = $this->applicationContext->getCurrentSite();
+
+        return $site->url . '/' . $destination->countryName . '/quote/' . $quote->id;
     }
 }
