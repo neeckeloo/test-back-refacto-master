@@ -4,20 +4,16 @@ class TemplateManager
 {
     private $applicationContext;
 
-    private $quoteRepository;
-
     private $siteRepository;
 
     private $destinationRepository;
 
     public function __construct(
         ApplicationContext $applicationContext,
-        QuoteRepository $quoteRepository,
         SiteRepository $siteRepository,
         DestinationRepository $destinationRepository
     ) {
         $this->applicationContext = $applicationContext;
-        $this->quoteRepository = $quoteRepository;
         $this->siteRepository = $siteRepository;
         $this->destinationRepository = $destinationRepository;
     }
@@ -41,7 +37,6 @@ class TemplateManager
 
         if ($quote)
         {
-            $_quoteFromRepository = $this->quoteRepository->getById($quote->id);
             $usefulObject = $this->siteRepository->getById($quote->siteId);
             $destinationOfQuote = $this->destinationRepository->getById($quote->destinationId);
 
@@ -56,14 +51,14 @@ class TemplateManager
                 if ($containsSummaryHtml !== false) {
                     $text = str_replace(
                         '[quote:summary_html]',
-                        Quote::renderHtml($_quoteFromRepository),
+                        Quote::renderHtml($quote),
                         $text
                     );
                 }
                 if ($containsSummary !== false) {
                     $text = str_replace(
                         '[quote:summary]',
-                        Quote::renderText($_quoteFromRepository),
+                        Quote::renderText($quote),
                         $text
                     );
                 }
@@ -73,7 +68,7 @@ class TemplateManager
         }
 
         if (isset($destination))
-            $text = str_replace('[quote:destination_link]', $usefulObject->url . '/' . $destination->countryName . '/quote/' . $_quoteFromRepository->id, $text);
+            $text = str_replace('[quote:destination_link]', $usefulObject->url . '/' . $destination->countryName . '/quote/' . $quote->id, $text);
         else
             $text = str_replace('[quote:destination_link]', '', $text);
 

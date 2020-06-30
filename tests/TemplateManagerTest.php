@@ -37,15 +37,12 @@ class TemplateManagerTest extends PHPUnit_Framework_TestCase
     public function test()
     {
         $applicationContext = $this->createApplicationContext();
-        $quoteRepository = new QuoteRepository();
         $siteRepository = new SiteRepository();
         $destinationRepository = new DestinationRepository();
 
         $destinationId = $this->faker->randomNumber();
         $expectedDestination = $destinationRepository->getById($destinationId);
         $expectedUser = $applicationContext->getCurrentUser();
-
-        $quote = new Quote($this->faker->randomNumber(), $this->faker->randomNumber(), $destinationId, $this->faker->date());
 
         $template = new Template(
             1,
@@ -60,12 +57,12 @@ Bien cordialement,
 L'équipe Convelio.com
 ");
 
-        $templateManager = new TemplateManager($applicationContext, $quoteRepository, $siteRepository, $destinationRepository);
+        $templateManager = new TemplateManager($applicationContext, $siteRepository, $destinationRepository);
 
         $message = $templateManager->getTemplateComputed(
             $template,
             [
-                'quote' => $quote
+                'quote' => $this->createQuote($destinationId),
             ]
         );
 
@@ -87,5 +84,14 @@ L'équipe Convelio.com
         $currentUser = new User($this->faker->randomNumber(), $this->faker->firstName, $this->faker->lastName, $this->faker->email);
 
         return new ApplicationContext($currentSite, $currentUser);
+    }
+
+    /**
+     * @param int $destinationId
+     * @return Quote
+     */
+    private function createQuote($destinationId)
+    {
+        return new Quote($this->faker->randomNumber(), $this->faker->randomNumber(), $destinationId, $this->faker->date());
     }
 }
