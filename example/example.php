@@ -13,6 +13,9 @@ require_once __DIR__ . '/../src/Repository/DestinationRepository.php';
 require_once __DIR__ . '/../src/Repository/QuoteRepository.php';
 require_once __DIR__ . '/../src/Repository/SiteRepository.php';
 require_once __DIR__ . '/../src/TemplateManager.php';
+require_once __DIR__ . '/../src/Template/TagsProcessor.php';
+require_once __DIR__ . '/../src/Template/QuoteTagsProcessor.php';
+require_once __DIR__ . '/../src/Template/UserTagsProcessor.php';
 
 $faker = \Faker\Factory::create();
 
@@ -36,7 +39,11 @@ Bien cordialement,
 
 L'équipe Convelio.com
 ");
-$templateManager = new TemplateManager($applicationContext);
+
+$quoteTagsProcessor = new QuoteTagsProcessor($applicationContext);
+$userTagsProcessor = new UserTagsProcessor($applicationContext);
+
+$templateManager = new TemplateManager([$quoteTagsProcessor, $userTagsProcessor]);
 
 $message = $templateManager->getTemplateComputed($template, [
     'quote' => $quote,

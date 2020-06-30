@@ -11,6 +11,9 @@ require_once __DIR__ . '/../src/Repository/DestinationRepository.php';
 require_once __DIR__ . '/../src/Repository/QuoteRepository.php';
 require_once __DIR__ . '/../src/Repository/SiteRepository.php';
 require_once __DIR__ . '/../src/TemplateManager.php';
+require_once __DIR__ . '/../src/Template/TagsProcessor.php';
+require_once __DIR__ . '/../src/Template/QuoteTagsProcessor.php';
+require_once __DIR__ . '/../src/Template/UserTagsProcessor.php';
 
 class TemplateManagerTest extends PHPUnit_Framework_TestCase
 {
@@ -34,7 +37,7 @@ class TemplateManagerTest extends PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function test()
+    public function compute_template_by_replacing_tags()
     {
         $applicationContext = $this->createApplicationContext();
 
@@ -55,7 +58,7 @@ Bien cordialement,
 L'équipe Convelio.com
 ");
 
-        $templateManager = new TemplateManager($applicationContext);
+        $templateManager = $this->createTemplateManager($applicationContext);
 
         $message = $templateManager->getTemplateComputed($template, [
             'quote' => $this->createQuote($destinationId),
@@ -75,6 +78,28 @@ L'équipe Convelio.com
 
         $this->assertEquals($expectedSubject, $message->subject);
         $this->assertEquals($expectedContent, $message->content);
+    }
+
+    /**
+     * @test
+     */
+    public function throw_exception_when_invalid_tags_processor_provided()
+    {
+        $template = new Template(1, 'subject', 'content');
+
+        $templateManager = new TemplateManager(['invalid_tags_processor']);
+
+        $this->expectException(\RuntimeException::class);
+
+        $templateManager->getTemplateComputed($template, []);
+    }
+
+    private function createTemplateManager(ApplicationContext $applicationContext)
+    {
+        $quoteTagsProcessor = new QuoteTagsProcessor($applicationContext);
+        $userTagsProcessor = new UserTagsProcessor($applicationContext);
+
+        return new TemplateManager([$quoteTagsProcessor, $userTagsProcessor]);
     }
 
     private function createApplicationContext()
