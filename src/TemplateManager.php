@@ -29,11 +29,13 @@ class TemplateManager
 
     private function computeText($text, array $data)
     {
+        $site = $this->applicationContext->getCurrentSite();
+
         $quote = (isset($data['quote']) and $data['quote'] instanceof Quote) ? $data['quote'] : null;
+        $user = (isset($data['user']) and ($data['user']  instanceof User))  ? $data['user']  : $this->applicationContext->getCurrentUser();
 
         if ($quote)
         {
-            $site = $this->applicationContext->getCurrentSite();
             $destinationOfQuote = $this->destinationRepository->getById($quote->destinationId);
 
             if(strpos($text, '[quote:destination_link]') !== false){
@@ -61,20 +63,15 @@ class TemplateManager
             }
 
             (strpos($text, '[quote:destination_name]') !== false) and $text = str_replace('[quote:destination_name]',$destinationOfQuote->countryName,$text);
+
+            if (isset($destination))
+                $text = str_replace('[quote:destination_link]', $site->url . '/' . $destination->countryName . '/quote/' . $quote->id, $text);
+            else
+                $text = str_replace('[quote:destination_link]', '', $text);
         }
 
-        if (isset($destination))
-            $text = str_replace('[quote:destination_link]', $site->url . '/' . $destination->countryName . '/quote/' . $quote->id, $text);
-        else
-            $text = str_replace('[quote:destination_link]', '', $text);
-
-        /*
-         * USER
-         * [user:*]
-         */
-        $_user  = (isset($data['user'])  and ($data['user']  instanceof User))  ? $data['user']  : $this->applicationContext->getCurrentUser();
-        if($_user) {
-            (strpos($text, '[user:first_name]') !== false) and $text = str_replace('[user:first_name]'       , ucfirst(mb_strtolower($_user->firstname)), $text);
+        if($user) {
+            (strpos($text, '[user:first_name]') !== false) and $text = str_replace('[user:first_name]', ucfirst(mb_strtolower($user->firstname)), $text);
         }
 
         return $text;
