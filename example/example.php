@@ -20,7 +20,6 @@ $currentSite = new Site($faker->randomNumber(), $faker->url);
 $currentUser = new User($faker->randomNumber(), $faker->firstName, $faker->lastName, $faker->email);
 
 $applicationContext = new ApplicationContext($currentSite, $currentUser);
-$siteRepository = new SiteRepository();
 $destinationRepository = new DestinationRepository();
 
 $template = new Template(
@@ -35,7 +34,7 @@ Bien cordialement,
 
 L'équipe Convelio.com
 ");
-$templateManager = new TemplateManager($applicationContext, $siteRepository, $destinationRepository);
+$templateManager = new TemplateManager($applicationContext, $destinationRepository);
 
 $message = $templateManager->getTemplateComputed(
     $template,

@@ -37,7 +37,6 @@ class TemplateManagerTest extends PHPUnit_Framework_TestCase
     public function test()
     {
         $applicationContext = $this->createApplicationContext();
-        $siteRepository = new SiteRepository();
         $destinationRepository = new DestinationRepository();
 
         $destinationId = $this->faker->randomNumber();
@@ -57,7 +56,7 @@ Bien cordialement,
 L'équipe Convelio.com
 ");
 
-        $templateManager = new TemplateManager($applicationContext, $siteRepository, $destinationRepository);
+        $templateManager = new TemplateManager($applicationContext, $destinationRepository);
 
         $message = $templateManager->getTemplateComputed(
             $template,

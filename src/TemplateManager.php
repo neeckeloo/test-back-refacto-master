@@ -4,17 +4,13 @@ class TemplateManager
 {
     private $applicationContext;
 
-    private $siteRepository;
-
     private $destinationRepository;
 
     public function __construct(
         ApplicationContext $applicationContext,
-        SiteRepository $siteRepository,
         DestinationRepository $destinationRepository
     ) {
         $this->applicationContext = $applicationContext;
-        $this->siteRepository = $siteRepository;
         $this->destinationRepository = $destinationRepository;
     }
 
@@ -37,7 +33,7 @@ class TemplateManager
 
         if ($quote)
         {
-            $site = $this->siteRepository->getById($quote->siteId);
+            $site = $this->applicationContext->getCurrentSite();
             $destinationOfQuote = $this->destinationRepository->getById($quote->destinationId);
 
             if(strpos($text, '[quote:destination_link]') !== false){
