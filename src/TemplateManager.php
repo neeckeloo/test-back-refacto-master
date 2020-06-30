@@ -9,13 +9,13 @@ class TemplateManager
         $this->applicationContext = $applicationContext;
     }
 
-    public function getTemplateComputed(Template $tpl, array $data)
+    public function getTemplateComputed(Template $template, array $data)
     {
-        $replaced = clone($tpl);
-        $replaced->subject = $this->computeText($replaced->subject, $data);
-        $replaced->content = $this->computeText($replaced->content, $data);
+        $computed = clone($template);
+        $computed->subject = $this->computeText($template->subject, $data);
+        $computed->content = $this->computeText($template->content, $data);
 
-        return $replaced;
+        return $computed;
     }
 
     private function computeText($text, array $data)
