@@ -34,16 +34,15 @@ class TemplateManager
         $quote = (isset($data['quote']) and $data['quote'] instanceof Quote) ? $data['quote'] : null;
         $user = (isset($data['user']) and ($data['user']  instanceof User))  ? $data['user']  : $this->applicationContext->getCurrentUser();
 
-        if ($quote)
-        {
+        if ($quote) {
             $destinationOfQuote = $this->destinationRepository->getById($quote->destinationId);
 
-            if(strpos($text, '[quote:destination_link]') !== false){
+            if (strpos($text, '[quote:destination_link]') !== false) {
                 $destination = $this->destinationRepository->getById($quote->destinationId);
             }
 
             $containsSummaryHtml = strpos($text, '[quote:summary_html]');
-            $containsSummary     = strpos($text, '[quote:summary]');
+            $containsSummary = strpos($text, '[quote:summary]');
 
             if ($containsSummaryHtml !== false || $containsSummary !== false) {
                 if ($containsSummaryHtml !== false) {
@@ -62,16 +61,23 @@ class TemplateManager
                 }
             }
 
-            (strpos($text, '[quote:destination_name]') !== false) and $text = str_replace('[quote:destination_name]',$destinationOfQuote->countryName,$text);
+            if (strpos($text, '[quote:destination_name]') !== false) {
+                $text = str_replace('[quote:destination_name]', $destinationOfQuote->countryName, $text);
+            }
 
-            if (isset($destination))
-                $text = str_replace('[quote:destination_link]', $site->url . '/' . $destination->countryName . '/quote/' . $quote->id, $text);
-            else
+            if (isset($destination)) {
+                $text = str_replace(
+                    '[quote:destination_link]',
+                    $site->url . '/' . $destination->countryName . '/quote/' . $quote->id,
+                    $text
+                );
+            } else {
                 $text = str_replace('[quote:destination_link]', '', $text);
+            }
         }
 
-        if($user) {
-            (strpos($text, '[user:first_name]') !== false) and $text = str_replace('[user:first_name]', ucfirst(mb_strtolower($user->firstname)), $text);
+        if (strpos($text, '[user:first_name]') !== false) {
+            $text = str_replace('[user:first_name]', ucfirst(mb_strtolower($user->firstname)), $text);
         }
 
         return $text;
