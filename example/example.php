@@ -17,6 +17,11 @@ require_once __DIR__ . '/../src/TemplateManager.php';
 
 $faker = \Faker\Factory::create();
 
+$applicationContext = ApplicationContext::getInstance();
+$quoteRepository = QuoteRepository::getInstance();
+$siteRepository = SiteRepository::getInstance();
+$destinationRepository = DestinationRepository::getInstance();
+
 $template = new Template(
     1,
     'Votre livraison à [quote:destination_name]',
@@ -29,7 +34,7 @@ Bien cordialement,
 
 L'équipe Convelio.com
 ");
-$templateManager = new TemplateManager();
+$templateManager = new TemplateManager($applicationContext, $quoteRepository, $siteRepository, $destinationRepository);
 
 $message = $templateManager->getTemplateComputed(
     $template,

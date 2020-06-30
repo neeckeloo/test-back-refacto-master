@@ -36,9 +36,14 @@ class TemplateManagerTest extends PHPUnit_Framework_TestCase
     {
         $faker = \Faker\Factory::create();
 
-        $destinationId                  = $faker->randomNumber();
-        $expectedDestination = DestinationRepository::getInstance()->getById($destinationId);
-        $expectedUser        = ApplicationContext::getInstance()->getCurrentUser();
+        $applicationContext = ApplicationContext::getInstance();
+        $quoteRepository = QuoteRepository::getInstance();
+        $siteRepository = SiteRepository::getInstance();
+        $destinationRepository = DestinationRepository::getInstance();
+
+        $destinationId = $faker->randomNumber();
+        $expectedDestination = $destinationRepository->getById($destinationId);
+        $expectedUser = $applicationContext->getCurrentUser();
 
         $quote = new Quote($faker->randomNumber(), $faker->randomNumber(), $destinationId, $faker->date());
 
@@ -54,7 +59,8 @@ Bien cordialement,
 
 L'équipe Convelio.com
 ");
-        $templateManager = new TemplateManager();
+
+        $templateManager = new TemplateManager($applicationContext, $quoteRepository, $siteRepository, $destinationRepository);
 
         $message = $templateManager->getTemplateComputed(
             $template,
