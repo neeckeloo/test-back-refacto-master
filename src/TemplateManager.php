@@ -32,7 +32,7 @@ class TemplateManager
         $site = $this->applicationContext->getCurrentSite();
 
         $quote = (isset($data['quote']) and $data['quote'] instanceof Quote) ? $data['quote'] : null;
-        $user = (isset($data['user']) and ($data['user']  instanceof User))  ? $data['user']  : $this->applicationContext->getCurrentUser();
+        $user = (isset($data['user']) and ($data['user'] instanceof User)) ? $data['user'] : $this->applicationContext->getCurrentUser();
 
         if ($quote) {
             $destinationOfQuote = $this->destinationRepository->getById($quote->destinationId);
@@ -44,14 +44,14 @@ class TemplateManager
             if ($this->hasTag('quote:summary_html', $text)) {
                 $text = $this->replaceTag(
                     'quote:summary_html',
-                    Quote::renderHtml($quote),
+                    $this->renderQuoteAsHtml($quote),
                     $text
                 );
             }
             if ($this->hasTag('quote:summary', $text)) {
                 $text = $this->replaceTag(
                     'quote:summary',
-                    Quote::renderText($quote),
+                    $this->renderQuoteAsText($quote),
                     $text
                 );
             }
@@ -97,5 +97,15 @@ class TemplateManager
     private function replaceTag($name, $value, $text)
     {
         return str_replace(sprintf('[%s]', $name), $value, $text);
+    }
+
+    private function renderQuoteAsHtml(Quote $quote)
+    {
+        return '<p>' . $quote->id . '</p>';
+    }
+
+    private function renderQuoteAsText(Quote $quote)
+    {
+        return (string) $quote->id;
     }
 }
